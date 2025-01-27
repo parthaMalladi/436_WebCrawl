@@ -20,20 +20,21 @@ public class WebCrawl {
         Set<String> visited = new HashSet<>();
 
         String s = getHTML(url);
-        extractURL(s);
-    }
 
-    private static void crawl(String link, int numHops, Set<String> mem) {
-        String curr = link;
-
-        for (int i = 0; i < numHops; i++) {
-            if (mem.contains(curr)) {
-                return;
+        for (int i = 0; i < hops; i++) {
+            if (s.equals("invalid")) {
+                System.out.println("Invalid Request or Malformed URL");
+                break;
             }
 
-            String htmlBody = getHTML(curr);
-
-
+            visited.add(url);
+            String newURL = extractURL(s, visited);
+            
+            if (!newURL.equals("")) {
+                url = newURL;
+                System.out.println(url);
+                s = getHTML(url);
+            }
         }
     }
 
@@ -55,33 +56,19 @@ public class WebCrawl {
                 }
                 scanner.close();
                 return sb.toString();
+            } else {
+                return "invalid";
             }
         } catch (MalformedURLException e) {
-            System.out.println("The URL is malformed: " + e.getMessage());
+            System.out.println("Malformed URL: " + e.getMessage());
         } catch (ProtocolException e) {
-            System.out.println("Invalid HTTP method: " + e.getMessage());
+            System.out.println("Protocol Exception: " + e.getMessage());
         } catch (IOException e) {
-            System.out.println("An I/O error occurred: " + e.getMessage());
+            System.out.println("I/O Exception: " + e.getMessage());
         }
 
         return "";
     }
-
-    // private static void extractURL(String htmlContent) {
-    //     int index = 0;
-
-    //     while ((index = htmlContent.indexOf("http", index)) != -1) {
-    //         int counter = index;
-
-    //         while (htmlContent.charAt(counter) != '"') {
-    //             counter++;
-    //         }
-
-    //         String tempLink = htmlContent.substring(index, counter);
-    //         System.out.println(tempLink);
-    //         index = counter;
-    //     }
-    // }
 
     private static String extractURL(String htmlContent, Set<String> mem) {
         Pattern pattern = Pattern.compile("<a\\s+href\\s*=\\s*\"(http[^\"]+)\"");
